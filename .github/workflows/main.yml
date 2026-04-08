@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          clean: true # Forces a clean workspace
 
       - name: Prepare Lowercase Owner Name
         run: |
@@ -27,19 +29,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.WEEK3T }}
 
+      # This step dynamically finds the Dockerfiles so path/case errors don't stop the build
+      - name: Locate Dockerfiles
+        id: locate
+        run: |
+          B_PATH=$(find . -ipath "*/backend/Dockerfile" | head -n 1)
+          F_PATH=$(find . -ipath "*/frontend/Dockerfile" | head -n 1)
+          echo "backend_file=$B_PATH" >> $GITHUB_OUTPUT
+          echo "frontend_file=$F_PATH" >> $GITHUB_OUTPUT
+          echo "Found Backend at: $B_PATH"
+          echo "Found Frontend at: $F_PATH"
+
       - name: Build and push Backend
+        if: steps.locate.outputs.backend_file != ''
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./backend/Dockerfile
+          file: ${{ steps.locate.outputs.backend_file }}
           push: true
           tags: ghcr.io/${{ env.OWNER_LC }}/week3-backend:latest
 
       - name: Build and push Frontend
+        if: steps.locate.outputs.frontend_file != ''
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./frontend/Dockerfile
+          file: ${{ steps.locate.outputs.frontend_file }}
           push: true
           tags: ghcr.io/${{ env.OWNER_LC }}/week3-frontend:latest
 
@@ -67,6 +82,5 @@ jobs:
         run: |
           # Pull the latest images
           docker compose pull
-          
           # Restart the containers in detached mode
           docker compose up -d --remove-orphans
