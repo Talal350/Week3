@@ -14,14 +14,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # DEBUG STEP: This will show us exactly why it can't find the folder
-      - name: List files for debugging
-        run: |
-          echo "Listing root directory:"
-          ls -F
-          echo "Checking for Dockerfiles:"
-          find . -name "Dockerfile"
+        with:
+          clean: true
 
       - name: Prepare Lowercase Owner Name
         run: |
@@ -36,20 +30,33 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # This step finds the Dockerfile regardless of folder name (backend/Backend/src/backend)
+      - name: Locate Dockerfiles
+        id: locate
+        run: |
+          BACKEND_PATH=$(find . -ipath "*/backend/Dockerfile" | head -n 1)
+          FRONTEND_PATH=$(find . -ipath "*/frontend/Dockerfile" | head -n 1)
+          
+          echo "found_backend=$BACKEND_PATH" >> $GITHUB_OUTPUT
+          echo "found_frontend=$FRONTEND_PATH" >> $GITHUB_OUTPUT
+          
+          echo "Found Backend at: $BACKEND_PATH"
+          echo "Found Frontend at: $FRONTEND_PATH"
+
       - name: Build and push Backend
+        if: steps.locate.outputs.found_backend != ''
         uses: docker/build-push-action@v5
         with:
           context: .
-          # If the debug step shows "Backend/", change this to ./Backend/Dockerfile
-          file: ./backend/Dockerfile
+          file: ${{ steps.locate.outputs.found_backend }}
           push: true
           tags: ghcr.io/${{ env.OWNER_LC }}/week3-backend:latest
 
       - name: Build and push Frontend
+        if: steps.locate.outputs.found_frontend != ''
         uses: docker/build-push-action@v5
         with:
           context: .
-          # If the debug step shows "Frontend/", change this to ./Frontend/Dockerfile
-          file: ./frontend/Dockerfile
+          file: ${{ steps.locate.outputs.found_frontend }}
           push: true
           tags: ghcr.io/${{ env.OWNER_LC }}/week3-frontend:latest
