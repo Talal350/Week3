@@ -14,14 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # DEBUG STEP: This helps identify if folders are named "Backend" vs "backend"
-      - name: List files for debugging
-        run: |
-          echo "Listing root directory:"
-          ls -F
-          echo "Checking for Dockerfiles:"
-          find . -name "Dockerfile"
-
       - name: Prepare Lowercase Owner Name
         run: |
           echo "OWNER_LC=${OWNER,,}" >> ${GITHUB_ENV}
@@ -33,7 +25,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.WEEK3 }}
 
       - name: Build and push Backend
         uses: docker/build-push-action@v5
@@ -58,16 +50,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Prepare Lowercase Owner Name
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >> ${GITHUB_ENV}
+        env:
+          OWNER: '${{ github.repository_owner }}'
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.WEEK3}}
+          password: ${{ secrets.WEEK3 }}
 
       - name: Deploy with Docker Compose
         run: |
-          # Pull the latest images defined in your docker-compose.yml
+          # Pull the latest images
           docker compose pull
           
           # Restart the containers in detached mode
