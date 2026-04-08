@@ -28,13 +28,13 @@ jobs:
       - name: Build and push Backend
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
+          context: ./backend   # must match your actual folder path
           push: true
           tags: ghcr.io/talal350/week3-backend:latest
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
+          context: ./frontend  # must match your actual folder path
           push: true
           tags: ghcr.io/talal350/week3-frontend:latest
