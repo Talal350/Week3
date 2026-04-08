@@ -15,8 +15,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # This step handles the "repository name must be lowercase" error 
-      # by creating a lowercase version of your username.
+      # Diagnostic step: This will show you exactly what folders exist
+      - name: List files in repository
+        run: ls -R
+
       - name: Prepare Lowercase Owner Name
         id: prep
         run: |
@@ -34,15 +36,15 @@ jobs:
       - name: Build and push Backend
         uses: docker/build-push-action@v5
         with:
+          # IMPORTANT: Ensure this matches your folder name exactly!
           context: ./backend 
           push: true
-          # Uses the lowercase environment variable
           tags: ghcr.io/${{ env.OWNER_LC }}/week3:latest
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
         with:
+          # IMPORTANT: Ensure this matches your folder name exactly!
           context: ./frontend 
           push: true
-          # Fixed the typo from 'lates' to 'latest'
           tags: ghcr.io/${{ env.OWNER_LC }}/week3/templates:latest
