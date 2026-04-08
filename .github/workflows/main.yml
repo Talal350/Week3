@@ -15,7 +15,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # This ensures the runner starts with a clean slate
           clean: true
 
       - name: Prepare Lowercase Owner Name
@@ -29,26 +28,21 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.WEEK3T}}
-
-      # Check if folders exist to prevent the "path not found" error
-      - name: Verify Directory Structure
-        run: |
-          echo "Current directory: $(pwd)"
-          ls -R
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Backend
         uses: docker/build-push-action@v5
         with:
-          # Double-check: Is your folder "backend" or "Backend"? 
-          # Linux (self-hosted) is case-sensitive.
-          context: ./backend 
+          # We set the context to the root and point specifically to the file
+          context: .
+          file: ./backend/Dockerfile
           push: true
           tags: ghcr.io/${{ env.OWNER_LC }}/week3:latest
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend 
+          context: .
+          file: ./frontend/Dockerfile
           push: true
           tags: ghcr.io/${{ env.OWNER_LC }}/week3/templates:latest
