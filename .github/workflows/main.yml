@@ -55,22 +55,16 @@ jobs:
   deploy:
     runs-on: self-hosted
     needs: build-and-push
-
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: deploy
-          key: ${{ secrets.SSH_KEY }}
-          script: |
+    - name: Deploy locally with Docker Compose
+      run: 
+      
+   
             set -e
 
             cd /home/cybersecurity/week3
 
             echo "${{ secrets.WEEK3T }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            docker compose pull
-            docker compose up -d --remove-orphans
-
-            docker image prune -f --filter "until=24h"
+            docker-compose down
+            docker-compose up -d 
