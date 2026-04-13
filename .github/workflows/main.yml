@@ -81,8 +81,6 @@ jobs:
       # FIXED: Removed the double "- name" and fixed indentation
       - name: Deploy with Docker Compose
         run: |
-          # 1. Pull the fresh images from GHCR
-          docker compose pull
-          
-          # 2. Restart local containers
-          docker compose up -d --remove-orphans
+               cd /home/cybersecurity/week3
+               docker-compose down
+               docker-compose up -d
