@@ -44,7 +44,7 @@ jobs:
           context: .
           file: ./frontend/Dockerfile
           push: true
-          tags: ghcr.io/Talal350/frontend:latest
+          tags: ghcr.io/talal350/frontend:latest
 
 
   deploy:
