@@ -5,8 +5,9 @@ on:
     branches:
       - main
 
+
 jobs:
-  build:
+  build-and-push:
     runs-on: self-hosted
 
     permissions:
@@ -25,38 +26,48 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.JAMALTOKEN }}
+          password: ${{ secrets.WEEK3T }}
 
-      - name: Build and Push Docker image
+      # ---------------- BACKEND ----------------
+      - name: Build and Push Backend
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./backend/Dockerfile
           push: true
-          tags: ghcr.io/jamaltaffal/backend:latest
+          tags: ghcr.io/Talal350/backend:latest
+
+      # ---------------- FRONTEND ----------------
+      - name: Build and Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ghcr.io/Talal350/frontend:latest
 
 
   deploy:
-    runs-on: ubuntu-latest
-    needs: build
+    runs-on: self-hosted
+    needs: build-and-push
 
     steps:
-      - name: Deploy to backend server via SSH
+      - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
           username: root
-          key: ${{ secrets.JAMALSECRETS }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             set -e
 
-            cd /root/jamal-docker-app
+            cd /home/cybersecurity/week3
 
-            echo "${{ secrets.JAMALTOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.WEEK3T }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            docker compose down backend || true
+            docker compose down
 
             docker image prune -f
             docker container prune -f
 
-            docker compose up -d backend
+            docker compose up -d
