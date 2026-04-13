@@ -82,5 +82,5 @@ jobs:
       - name: Deploy with Docker Compose
         run: |
                cd /home/cybersecurity/week3
-               docker-compose down
-               docker-compose up -d
+               docker compose down
+               docker compose up -d
