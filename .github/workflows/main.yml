@@ -51,25 +51,26 @@ jobs:
           tags: |
             ghcr.io/talal350/week3-templates:latest
             ghcr.io/talal350/week3-templates:${{ github.sha }}
- deploy:
-  needs: build-and-push
-  runs-on: self-hosted
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+  deploy:
+    needs: build-and-push
+    runs-on: self-hosted
 
-    - name: Log in to GitHub Container Registry
-      run: echo "${{ secrets.WEEK3T }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Pull latest images
-      run: |
-        docker pull ghcr.io/talal350/week3:latest
-        docker pull ghcr.io/talal350/week3/templates:latest
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.WEEK3T }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-    - name: Run new containers
-      run: |
-        cd /home/cybersecurity/week3
-        docker-compose down
-        docker system prune -f
-        docker-compose up -d
+      - name: Pull latest images
+        run: |
+          docker pull ghcr.io/talal350/week3:latest
+          docker pull ghcr.io/talal350/week3-templates:latest
+
+      - name: Run new containers
+        run: |
+          cd /home/cybersecurity/week3
+          docker-compose down
+          docker system prune -f
+          docker-compose up -d
