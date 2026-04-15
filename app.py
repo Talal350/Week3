@@ -11,11 +11,11 @@ app = Flask(__name__)
 
 # Prefer full URI if provided; otherwise compose it from Postgres env vars.
 
-db_user = os.getenv("POSTGRES_USER", "postgres")
-db_password = os.getenv("POSTGRES_PASSWORD", "postgres")
-db_host = os.getenv("POSTGRES_HOST", "localhost")
-db_port = os.getenv("POSTGRES_PORT", "5432")
-db_name = os.getenv("POSTGRES_DB", "taskdb")
+db_user = os.getenv("POSTGRES_USER")
+db_password = os.getenv("POSTGRES_PASSWORD")
+db_host = os.getenv("POSTGRES_HOST")
+db_port = os.getenv("POSTGRES_PORT")
+db_name = os.getenv("POSTGRES_DB")
 db_uri = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
